@@ -1,0 +1,22 @@
+{% load list_view %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChangeListView</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+</head>
+<body>
+{#{% for item in result_list %}#}
+{#<div>{{ item.username  }}</div>#}
+{#{% endfor %}#}
+<h1>数据展示</h1>
+<a href="{{ add_url }}" class="btn">添加</a>
+{% func list_dispaly data_list base_curd_admin_obj %}
+
+<ul class="pager">
+    {{ pager_tags|safe }}
+</ul>
+</body>
+</html>
