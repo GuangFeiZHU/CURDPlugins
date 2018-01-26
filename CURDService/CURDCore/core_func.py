@@ -9,6 +9,7 @@ class BaseCurdAdmin():
     list_display='__all__'
     #list_display = ['username','email']
     add_edit_modelform=None
+    action_list=[]
     def __init__(self,model_class,site):
         self.model_class=model_class
         self.site=site
@@ -32,7 +33,6 @@ class BaseCurdAdmin():
         #---------------分页开始------------------------
         changlist_name= '%s_%s_changelist' % (self.model_class._meta.app_label, self.model_class._meta.model_name)
         changlist_url=reverse('%s:%s'%(self.site.namespace,changlist_name))
-        print(changlist_url,'changlist_url--------------')
         from utils import my_pager
         current_page=request.GET.get('page')
         page_params_dict=copy.deepcopy(request.GET)
@@ -41,27 +41,44 @@ class BaseCurdAdmin():
         result_list=result_lists[pagers.start_data:pagers.data_end]
         pager_tags=pagers.pager()
         #--------------分页结束-------------------------
+
+        #-----------Action操作开始------------------------
+        #返回到前端select框里面的数据
+        action_list=[]
+        for action in self.action_list:
+            temp={'name':action.__name__,'text':action.text}    #name指的是函数名，text指的是函数定制的中文名称
+            action_list.append(temp)
+        if request.method=='POST':
+            received_data=request.POST
+            action_func_str=request.POST.get('action')
+            print('received_data----',received_data)
+            ret=getattr(self,action_func_str)(request)
+            action_response_url=reverse('{2}:{0}_{1}_changelist'.format(
+                self.model_class._meta.app_label,
+                self.model_class._meta.model_name,self.site.namespace))
+            if ret:                   #执行函数，若返回True则跳转到当前页，否则返回到首页
+                action_response_url='%s?%s'%(action_response_url,request.GET.urlencode())
+            return redirect(action_response_url)
+
+
+        #--------------页面值的返回及渲染--------------------
         #添加的url  add_url
         from django.http.request import QueryDict
         parms_dict=QueryDict(mutable=True)
         name='%s_%s_add' % (self.model_class._meta.app_label,self.model_class._meta.model_name)
         add_url_temp=reverse('%s:%s'%(self.site.namespace,name))
 
-        #name_delete='%s_%s_delete' % (self.model_class._meta.app_label,self.model_class._meta.model_name)
-        #delete_temp=reverse('%s:%s'%(self.site.namespace,name_delete),args=self.model_class.id)
         if request.method=='GET':
             parms_dict['_changelistfilter']=request.GET.urlencode()
         add_url='{0}?{1}'.format(add_url_temp,parms_dict.urlencode())
-        #delete_url='{0}?{1}'.format(delete_temp,parms_dict.urlencode())
         content={
             'list_dispaly':self.list_display,
             'data_list':result_list,
             'base_curd_admin_obj':self,
             'add_url':add_url,
-            'pager_tags':pager_tags
+            'pager_tags':pager_tags,
+            'action_list':action_list
         }
-        print(self.list_display,'list_display')
-        print(self.model_class.objects.all())
         return render(request,'my_curd/changlist_view.html',content)
 
     def get_add_edit_modelform(self):

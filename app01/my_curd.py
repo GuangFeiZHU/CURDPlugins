@@ -83,8 +83,25 @@ class UserCurdAdmin(core_func.BaseCurdAdmin):
             print('定制列--------',model_obj.email)
             v='%s--%s'%(model_obj.username,model_obj.email)
             return v
+    def checkbox(self,model_obj=None,is_header=False):
+        if is_header:
+            return '选择'
+        else:
+            a_tag='<input type="checkbox" name="pk" value="{0}">'.format(model_obj.pk)
+            return mark_safe(a_tag)
 
-    list_display = ['id','username','email','role','usergroup',edit,delete,reverse_produce_url,combine_username_email]
+    #action函数定义
+    def init_data(self,request):
+        print('执行init_data--------------')
+        received_data=request.POST.getlist('pk')
+        print('pk----',received_data)
+        return True
+    init_data.text='初始化数据'
+    def del_data(self,request):
+        return True
+    del_data.text='删除数据'
+    action_list=[init_data,del_data]
+    list_display = [checkbox,'id','username','email','role','usergroup',edit,delete,reverse_produce_url,combine_username_email]
 
 
 core_func.site.register(models.User, UserCurdAdmin)
