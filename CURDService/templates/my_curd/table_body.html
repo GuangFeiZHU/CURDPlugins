@@ -1,22 +1,22 @@
 <table border="1" class="table">
-<thead>
+    <thead>
 
-<tr>
-    {% for head in table_head_list %}
-    <th>
-    {{ head }}
-    </th>
-    {% endfor %}
+    <tr>
+        {% for head in table_head_list %}
+            <th>
+                {{ head }}
+            </th>
+        {% endfor %}
 
-</tr>
-</thead>
+    </tr>
+    </thead>
     <tbody>
     {% for row in result %}
-    <tr>
-    {% for item in row %}
-    <td>{{ item }}</td>
-    {% endfor %}
-    </tr>
+        <tr>
+            {% for item in row %}
+                <td>{{ item }}</td>
+            {% endfor %}
+        </tr>
     {% endfor %}
 
     </tbody>

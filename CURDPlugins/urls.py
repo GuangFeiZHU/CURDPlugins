@@ -17,6 +17,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from CURDService.CURDCore import core_func
 from app01 import views
+
 urlpatterns = [
     url(r'^curd/', core_func.site.urls),
     url(r'^test/', views.test),
